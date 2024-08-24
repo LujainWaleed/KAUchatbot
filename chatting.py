@@ -66,7 +66,7 @@ class Chatbot:
                 response = random.choice(intent['responses'])
                 return response
 
-        return "Sorry, I didn't understand that."
+        return self.intents.get(user_response, "Sorry, I didn't understand that.")
 
     def get_predicted_tag_class(self, stemmed_sentence):
         seq = self.tokenizer.texts_to_sequences([stemmed_sentence])
@@ -506,10 +506,16 @@ def incoming_sms(msg, from_number):
 
 def reply_bot(msg):
     """Handle messages routed to the bot"""
-    # Initialize your chatbot (assuming these are defined elsewhere)
+    # Initialize your chatbot (ensure that these are properly defined)
+    model = None  # Replace with your model
+    tokenizer = None  # Replace with your tokenizer
+    max_length = 50  # Example max_length
+
+    # Initialize the chatbot with the intents, model, tokenizer, and max_length
     chat = Chatbot(intents, model, tokenizer, max_length)
     bot_response = chat.generate_response(msg)  # Pass the actual message to the bot
 
+    # Create a Twilio MessagingResponse object to format the response
     response = MessagingResponse()
     response.message(bot_response)
     return str(response)
