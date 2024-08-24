@@ -18,6 +18,13 @@ import logging
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 
+# Load intents from intents.json globally
+def load_intents():
+    with open('intents.json', 'r', encoding='utf-8') as file:
+        return json.load(file)
+
+intents = load_intents()
+
 class Chatbot:
     exit_commands = ("quit", "pause", "exit", "goodbye", "bye", "later", "stop")
 
