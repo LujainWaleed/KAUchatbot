@@ -521,21 +521,35 @@ def hello():
 @app.route("/handle_message", methods=["POST"])
 def handle_message():
     """Route incoming messages based on whether the message is a number or not"""
-    msg = request.values.get('Body', None)
-    from_number = request.values.get('From', None)
-    logging.info(f"Received message: {msg} from {from_number}")
+    msg = request.values.get('Body', '').strip()
+    from_number = request.values.get('From', '')
 
-    if msg:
-        msg = msg.strip().lower()
-        if msg.isdigit():
-            return incoming_sms(msg, from_number)
-        else:
-            return reply_bot(msg)
-    else:
+    # Detailed logging
+    logging.info(f"Received message: '{msg}' from {from_number}")
+
+    if not msg:
         logging.error("No message body found in request.")
         resp = MessagingResponse()
         resp.message("الرجاء إدخال نص")
         return str(resp)
+    
+    if msg.isdigit():
+        try:
+            return incoming_sms(msg, from_number)
+        except Exception as e:
+            logging.error(f"Error in incoming_sms: {e}")
+            resp = MessagingResponse()
+            resp.message("حدث خطأ أثناء معالجة الرسالة.")
+            return str(resp)
+
+    try:
+        return reply_bot(msg)
+    except Exception as e:
+        logging.error(f"Error in reply_bot: {e}")
+        resp = MessagingResponse()
+        resp.message("حدث خطأ أثناء معالجة الرسالة.")
+        return str(resp)
+
 
 if __name__ == "__main__":
     try:
